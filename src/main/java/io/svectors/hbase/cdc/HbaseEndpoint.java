@@ -92,8 +92,9 @@ public class HbaseEndpoint extends BaseReplicationEndpoint {
 	            columnsByRow.entrySet().stream().forEach(rowcols -> {
 	                final byte[] rowkey = rowcols.getKey();
 	                  final List<Cell> columns = rowcols.getValue();
-	                final HRow row = TO_HROW.apply(rowkey, columns);
-	                producer.send(tableName, row);
+	                final HRow row = TO_HROW.apply(tableName, rowkey, columns);
+                    System.out.println("row: " + row);
+                    producer.send(tableName, row);
 	             });
             });
         });

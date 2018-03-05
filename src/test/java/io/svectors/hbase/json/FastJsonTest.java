@@ -2,6 +2,7 @@ package io.svectors.hbase.json;
 
 import com.alibaba.fastjson.JSON;
 import io.svectors.hbase.cdc.model.HRow;
+import io.svectors.hbase.cdc.util.DateUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -11,6 +12,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -54,22 +56,22 @@ public class FastJsonTest {
                 byte[] value = CellUtil.cloneValue(cell);
                 long timestamp = cell.getTimestamp();
                 System. out .println(
-                        "Rowkey : " +Bytes. toString (result.getRow())+
+                        "Rowkey : " +Bytes.toString (result.getRow())+
                                 "   Familiy:Quilifier : " +Bytes. toString (CellUtil. cloneQualifier (cell))+
                                 "   Value : " +Bytes. toString (CellUtil. cloneValue (cell))+
                                 "   Time : " +cell.getTimestamp()
                 );
-                final HRow.HColumn column = new HRow.HColumn(family, qualifier, value, timestamp);
+                final HRow.HColumn column = new HRow.HColumn(Bytes.toString (result.getRow()), Bytes.toString(family), Bytes.toString(qualifier), Bytes.toString(value), timestamp);
                 return column;
             }).collect(toList());
-            HRow row = new HRow(Bytes.toBytes("r1"), HRow.RowOp.PUT, columns);
+            HRow row = new HRow("test", HRow.RowOp.S.name(), DateUtils.formatDate2(new Date(System.currentTimeMillis())),DateUtils.formatDate2(new Date(System.currentTimeMillis())),"1", Bytes.toString (result.getRow()), columns);
             String objectToJSON = JSON.toJSONString(row);
-            System.out.println(objectToJSON);
+            System.out.println("objectToJSON = " + objectToJSON);
             row = JSON.parseObject(objectToJSON, HRow.class);
             System.out.println(Bytes.toString(row.getRowKey()));
-            List<HRow.HColumn> columnsList = row.getColumns();
+            List<HRow.HColumn> columnsList = row.getAfter();
             for (HRow.HColumn hColumn : columnsList) {
-                System.out.println(Bytes.toString(hColumn.getFamily()) + ", " + Bytes.toString(hColumn.getQualifier()) + ", " + hColumn.getTimestamp() + ", " + Bytes.toString(hColumn.getValue()));
+//                System.out.println(Bytes.toString(hColumn.getFamily()) + ", " + Bytes.toString(hColumn.getQualifier()) + ", " + hColumn.getTimestamp() + ", " + Bytes.toString(hColumn.getValue()));
             }
             admin.close();
             conn.close();

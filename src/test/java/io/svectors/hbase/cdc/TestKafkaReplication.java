@@ -63,11 +63,11 @@ public class TestKafkaReplication extends BaseTest {
 
 	          createTestTable();
 	          addPeer(utility.getConfiguration(), PEER_NAME, tableCfs);
-						int numberOfRecords = 10;
+	          int numberOfRecords = 10;
 	          addData(numberOfRecords);
 
 	          final KafkaConsumer kafkaConsumer = createAndGetKafkaConsumer();
-		        final AtomicInteger totalRecords = new AtomicInteger(0);
+		      final AtomicInteger totalRecords = new AtomicInteger(0);
 	          kafkaConsumer.subscribe(Collections.singletonList(TABLE_NAME.getNameAsString()));
 		        while (totalRecords.get() < numberOfRecords) {
 			          ConsumerRecords<byte[], String> consumerRecords = kafkaConsumer.poll(1000);

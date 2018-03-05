@@ -19,6 +19,7 @@ package io.svectors.hbase.cdc.model;
 
 import org.apache.hadoop.hbase.HConstants;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,109 +28,191 @@ import java.util.List;
  */
 public class HRow {
 
+    private String collection;
+
+    private String op_type;
+
+    private String op_ts;
+
+    private String current_ts;
+
+    private String pos;
+
+    private List<String> primary_keys = new ArrayList<>();
+
     private byte[] rowKey;
 
     private RowOp rowOp;
 
-    private List<HColumn> columns;
+    private List<HColumn> after;
 
     public HRow(){}
 
-    public HRow(byte[] rowKey, RowOp rowOp, HColumn... columns) {
-        this(rowKey, rowOp, Arrays.asList(columns));
+    public HRow(byte[] rowKey, RowOp rowOp, HColumn... after) {
+        this(rowKey, rowOp, Arrays.asList(after));
     }
 
-    public HRow(byte[] rowKey, RowOp rowOp, List<HColumn> columns) {
+    public HRow(byte[] rowKey, RowOp rowOp, List<HColumn> after) {
         this.rowKey = rowKey;
         this.rowOp = rowOp;
-        this.columns = columns;
+        this.after = after;
+    }
+
+    public HRow(String collection, String op_type, String op_ts, String current_ts, String pos, String primary_keys,  List<HColumn> after) {
+        this.collection = collection;
+        this.op_type = op_type;
+        this.op_ts = op_ts;
+        this.current_ts = current_ts;
+        this.pos = pos;
+        this.primary_keys.add(primary_keys) ;
+        this.after = after;
     }
 
     public byte[] getRowKey() {
         return rowKey;
     }
 
-    public RowOp getRowOp() {
-        return rowOp;
-    }
-
-    public List<HColumn> getColumns() {
-        return columns;
-    }
-
     public void setRowKey(byte[] rowKey) {
         this.rowKey = rowKey;
+    }
+
+    public RowOp getRowOp() {
+        return rowOp;
     }
 
     public void setRowOp(RowOp rowOp) {
         this.rowOp = rowOp;
     }
 
-    public void setColumns(List<HColumn> columns) {
-        this.columns = columns;
+    public List<HColumn> getAfter() {
+        return after;
+    }
+
+    public void setAfter(List<HColumn> after) {
+        this.after = after;
+    }
+
+    public String getCollection() {
+        return collection;
+    }
+
+    public void setCollection(String collection) {
+        this.collection = collection;
+    }
+
+    public String getOp_type() {
+        return op_type;
+    }
+
+    public void setOp_type(String op_type) {
+        this.op_type = op_type;
+    }
+
+    public String getOp_ts() {
+        return op_ts;
+    }
+
+    public void setOp_ts(String op_ts) {
+        this.op_ts = op_ts;
+    }
+
+    public String getCurrent_ts() {
+        return current_ts;
+    }
+
+    public void setCurrent_ts(String current_ts) {
+        this.current_ts = current_ts;
+    }
+
+    public String getPos() {
+        return pos;
+    }
+
+    public void setPos(String pos) {
+        this.pos = pos;
+    }
+
+    public List<String> getPrimary_keys() {
+        return primary_keys;
+    }
+
+    public void setPrimary_keys(List<String> primary_keys) {
+        this.primary_keys = primary_keys;
     }
 
     /**
      * Properties for a column .
      */
     public static class HColumn {
+        private String rowkey;
 
-        private byte[] family;
+        private String family;
 
         private long timestamp;
 
-        private byte[] qualifier;
+        private String qualifier;
 
-        private byte[] value;
+        private String value;
 
-        public HColumn(){}
-
-        public HColumn(byte[] family, byte[] qualifier, byte[] value) {
-            this(family,qualifier,value,HConstants.LATEST_TIMESTAMP);
+        public HColumn() {
         }
 
-        public HColumn(byte[] family, byte[] qualifier, byte[] value, long timestamp) {
+        public HColumn(String rowkey, String family, String qualifier, String value) {
+            this(rowkey, family, qualifier, value, HConstants.LATEST_TIMESTAMP);
+        }
+
+        public HColumn(String rowkey, String family, String qualifier, String value, long timestamp) {
+            this.rowkey = rowkey;
             this.family = family;
             this.qualifier = qualifier;
             this.value = value;
             this.timestamp = timestamp;
         }
 
-        public byte[] getFamily() {
+        public String getRowkey() {
+            return rowkey;
+        }
+
+        public void setRowkey(String rowkey) {
+            this.rowkey = rowkey;
+        }
+
+        public String getFamily() {
             return family;
+        }
+
+        public void setFamily(String family) {
+            this.family = family;
         }
 
         public long getTimestamp() {
             return timestamp;
         }
 
-        public byte[] getQualifier() {
-            return qualifier;
-        }
-
-        public byte[] getValue() {
-            return value;
-        }
-
-        public void setFamily(byte[] family) {
-            this.family = family;
-        }
-
         public void setTimestamp(long timestamp) {
             this.timestamp = timestamp;
         }
 
-        public void setQualifier(byte[] qualifier) {
+        public String getQualifier() {
+            return qualifier;
+        }
+
+        public void setQualifier(String qualifier) {
             this.qualifier = qualifier;
         }
 
-        public void setValue(byte[] value) {
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
             this.value = value;
         }
     }
 
+
     public static enum RowOp {
-        PUT,
-        DELETE;
+        S,       // 代表HBASE的PUT操作
+        D;       // 代表HBASE的DELETE操作
     }
 }

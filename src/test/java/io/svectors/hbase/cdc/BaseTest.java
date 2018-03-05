@@ -75,7 +75,8 @@ public abstract class BaseTest {
 		hbaseConf.set("kafka.acks", "1");
 		hbaseConf.set("kafka.producer.type", "async");
 		hbaseConf.set("kafka.key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
-		hbaseConf.set("kafka.value.serializer", "io.svectors.hbase.cdc.serde.HRowProtobufSerde");
+//		hbaseConf.set("kafka.value.serializer", "io.svectors.hbase.cdc.serde.HRowProtobufSerde");
+		hbaseConf.set("kafka.value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 	}
 
 	/**
