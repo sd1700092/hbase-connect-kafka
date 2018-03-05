@@ -28,6 +28,8 @@ name | data type | required | description
 -----|-----------|----------|------------
 kafka.bootstrap.servers | string | yes | Kafka broker servers.
 kafka.producer.type | string | no | Can be either sync or async. Default `sync`
+kafka.key.serializer | string | yes | org.apache.kafka.common.serialization.ByteArraySerializer
+kafka.value.serializer | string | yes | org.apache.kafka.common.serialization.StringSerializer
 
 
 ## Packaging
@@ -43,7 +45,7 @@ kafka.producer.type | string | no | Can be either sync or async. Default `sync`
 
 ```bash
 hbase> create 'test', {NAME => 'd', REPLICATION_SCOPE => '1'}
-hbase> add_peer 'kafka-repl', ENDPOINT_CLASSNAME 'io.svectors.hbase.cdc.HbaseEndpoint'
+hbase> add_peer '1', ENDPOINT_CLASSNAME=>'io.svectors.hbase.cdc.HbaseEndpoint'
 hbase> put 'test', 'r1', 'd', 'value'
 ```
 
