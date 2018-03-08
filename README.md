@@ -23,6 +23,7 @@ filtered and mirrored to Kafka using the Kafka producer api.
 
 Have the below properties set in hbase-site.xml and add it to the HBase region server classpath.
 Each kafka producer property should be prefixed with `kafka`.
+notice: kafka.bootstrap.servers should be broker-ids, not zk ids.
 
 name | data type | required | description
 -----|-----------|----------|------------
