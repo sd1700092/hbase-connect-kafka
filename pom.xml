@@ -10,7 +10,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hbase.version>1.2.0</hbase.version>
 		<hadoop.version>2.6.0</hadoop.version>
-		<kafka.version>0.9.0.0</kafka.version>
+		<kafka.version>0.10.2.1</kafka.version>
 		<junit.version>4.11</junit.version>
 		<hadoop.mvn.version>2.7.1</hadoop.mvn.version>
 		<protobuf.version>2.5.0</protobuf.version>
@@ -31,9 +31,9 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.10</artifactId>
+			<artifactId>connect-api</artifactId>
 			<version>${kafka.version}</version>
-			<classifier>test</classifier>
+			<!--<scope>provided</scope>-->
 		</dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -64,47 +64,47 @@
 		</dependency>
   	</dependencies>
 
-	<profiles>
-		<profile>
-			<id>compile-protobuf</id>
-			<activation>
-				<property>
-					<name>compile-protobuf</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.hadoop</groupId>
-						<artifactId>hadoop-maven-plugins</artifactId>
-						<executions>
-							<execution>
-								<id>compile-protoc</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>protoc</goal>
-								</goals>
-								<configuration>
-									<protocVersion>${protobuf.version}</protocVersion>
-									<imports>
-										<param>${basedir}/src/main/resources/protobuf</param>
-									</imports>
-									<source>
-										<directory>${basedir}/src/main/resources/protobuf</directory>
-										<includes>
-											<include>Cell.proto</include>
-											<include>Row.proto</include>
-										</includes>
-									</source>
-									<output>${basedir}/src/main/java/</output>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+	<!--<profiles>-->
+		<!--<profile>-->
+			<!--<id>compile-protobuf</id>-->
+			<!--<activation>-->
+				<!--<property>-->
+					<!--<name>compile-protobuf</name>-->
+				<!--</property>-->
+			<!--</activation>-->
+			<!--<build>-->
+				<!--<plugins>-->
+					<!--<plugin>-->
+						<!--<groupId>org.apache.hadoop</groupId>-->
+						<!--<artifactId>hadoop-maven-plugins</artifactId>-->
+						<!--<executions>-->
+							<!--<execution>-->
+								<!--<id>compile-protoc</id>-->
+								<!--<phase>generate-sources</phase>-->
+								<!--<goals>-->
+									<!--<goal>protoc</goal>-->
+								<!--</goals>-->
+								<!--<configuration>-->
+									<!--<protocVersion>${protobuf.version}</protocVersion>-->
+									<!--<imports>-->
+										<!--<param>${basedir}/src/main/resources/protobuf</param>-->
+									<!--</imports>-->
+									<!--<source>-->
+										<!--<directory>${basedir}/src/main/resources/protobuf</directory>-->
+										<!--<includes>-->
+											<!--<include>Cell.proto</include>-->
+											<!--<include>Row.proto</include>-->
+										<!--</includes>-->
+									<!--</source>-->
+									<!--<output>${basedir}/src/main/java/</output>-->
+								<!--</configuration>-->
+							<!--</execution>-->
+						<!--</executions>-->
+					<!--</plugin>-->
+				<!--</plugins>-->
+			<!--</build>-->
+		<!--</profile>-->
+	<!--</profiles>-->
 
 	<build>
 		<plugins>

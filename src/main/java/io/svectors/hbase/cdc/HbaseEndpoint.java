@@ -19,23 +19,19 @@ package io.svectors.hbase.cdc;
 
 import io.svectors.hbase.cdc.config.KafkaConfiguration;
 import io.svectors.hbase.cdc.func.ToHRowFunction;
-import io.svectors.hbase.cdc.model.HRow;
+import io.svectors.hbase.cdc.hbasesource.HBaseSourceConnector;
+import io.svectors.hbase.cdc.hbasesource.HBaseSourceTask;
 import io.svectors.hbase.cdc.util.TopicNameFilter;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.replication.BaseReplicationEndpoint;
-import org.apache.hadoop.hbase.wal.WAL.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import static java.util.stream.Collectors.groupingBy;
 
 /**
  *  @author ravi.magham
@@ -44,7 +40,7 @@ public class HbaseEndpoint extends BaseReplicationEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(HbaseEndpoint.class);
 
-    private static final ToHRowFunction TO_HROW = new ToHRowFunction();
+    public static final ToHRowFunction TO_HROW = new ToHRowFunction();
     private KafkaMessageProducer producer;
     private TopicNameFilter topicNameFilter;
 
@@ -70,34 +66,16 @@ public class HbaseEndpoint extends BaseReplicationEndpoint {
      */
     @Override
     public boolean replicate(ReplicateContext context) {
-        final List<Entry> entries = context.getEntries();
+        HBaseSourceConnector hBaseSourceConnector = new HBaseSourceConnector();
+        Map<String, String> props = new HashMap<>();
+        //TODO: props.put(...)
+        hBaseSourceConnector.start(props);
 
-        final Map<String, List<Entry>> entriesByTable = entries.stream()
-                          .filter(entry -> topicNameFilter.test(entry.getKey().getTablename().getNameAsString()))
-                          .collect(groupingBy(entry -> entry.getKey().getTablename().getNameAsString()));
+        HBaseSourceTask hBaseSourceTask = new HBaseSourceTask();
 
-        // persist the data to kafka in parallel.
-        entriesByTable.entrySet().stream().forEach(entry -> {
-            final String tableName = entry.getKey();
-            final List<Entry> tableEntries = entry.getValue();
+        hBaseSourceTask.setCtx(context);
+        hBaseSourceTask.setTopicNameFilter(topicNameFilter);
 
-            tableEntries.forEach(tblEntry -> {
-	              List<Cell> cells = tblEntry.getEdit().getCells();
-
-                // group the data by the rowkey.
-	            Map<byte[], List<Cell>> columnsByRow = cells.stream()
-	                  .collect(groupingBy(CellUtil::cloneRow));
-
-	              // build the list of rows.
-	            columnsByRow.entrySet().stream().forEach(rowcols -> {
-	                final byte[] rowkey = rowcols.getKey();
-	                  final List<Cell> columns = rowcols.getValue();
-	                final HRow row = TO_HROW.apply(tableName, rowkey, columns);
-                    System.out.println("row: " + row);
-                    producer.send(tableName, row);
-	             });
-            });
-        });
         return true;
     }
 
